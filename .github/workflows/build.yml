@@ -28,14 +28,14 @@ jobs:
       run: |
         mkdir -p $THEOS/sdks
         
-        # Download a real SDK archive from a trusted community source (theos/sdks)
-        curl -LO https://github.com/theos/sdks/raw/master/iPhoneOS16.5.sdk.tar.xz
+        # -L follows redirects; -o ensures it saves exactly as the specified filename
+        curl -fSL -o iPhoneOS16.5.sdk.tar.xz https://github.com/theos/sdks/raw/master/iPhoneOS16.5.sdk.tar.xz
         
-        # Extract and clean up
+        # Extract the archive securely
         tar -xf iPhoneOS16.5.sdk.tar.xz -C $THEOS/sdks
         rm iPhoneOS16.5.sdk.tar.xz
         
-        # Check if it extracted directly or needs renaming
+        # Rename to match your project's expected standard naming scheme
         if [ -d "$THEOS/sdks/iPhoneOS16.5.sdk" ]; then
           mv $THEOS/sdks/iPhoneOS16.5.sdk $THEOS/sdks/iPhoneOS.sdk
         fi
