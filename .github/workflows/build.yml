@@ -14,7 +14,6 @@ jobs:
     - name: Setup Theos Environment
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         brew install ldid xz
         export THEOS=~/theos
@@ -24,9 +23,8 @@ jobs:
 
     - name: Download and Rename iOS SDK
       run: |
-        git clone --depth=1 --filter=blob:none --sparse https://github.com/theos/sdks.git $THEOS/sdks
+        git clone --depth=1 https://github.com/theos/sdks.git $THEOS/sdks
         cd $THEOS/sdks
-        git sparse-checkout set iPhoneOS16.5.sdk
         mv iPhoneOS16.5.sdk iPhoneOS.sdk
 
     - name: Compile Tweak to Dylib
