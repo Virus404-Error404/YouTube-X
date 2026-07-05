@@ -1,0 +1,40 @@
+name: Build iOS Dylib
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-13
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Setup Theos Environment
+      run: |
+        brew install ldid xz
+        export THEOS=~/theos
+        bash -c "$(curl -fsSL https://githubusercontent.com)"
+        echo "THEOS=$THEOS" >> $GITHUB_ENV
+        echo "$THEOS/bin" >> $GITHUB_PATH
+
+    - name: Download and Rename iOS SDK
+      run: |
+        mkdir -p $THEOS/sdks
+        curl -LO https://github.com
+        tar -xf iPhoneOS16.5.sdk.tar.xz -C $THEOS/sdks
+        rm iPhoneOS16.5.sdk.tar.xz
+        mv $THEOS/sdks/iPhoneOS16.5.sdk $THEOS/sdks/iPhoneOS.sdk
+
+    - name: Compile Tweak to Dylib
+      run: |
+        make
+        mkdir -p output_artifacts
+        find .theos/obj/ -name "*.dylib" -exec cp {} output_artifacts/ \;
+
+    - name: Upload Dylib Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: YouTubeX-Dylib-File
+        path: output_artifacts/*.dylib
