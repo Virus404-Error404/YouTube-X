@@ -26,10 +26,8 @@ jobs:
       run: |
         git clone --depth=1 --filter=blob:none --sparse https://github.com/theos/sdks.git $THEOS/sdks
         cd $THEOS/sdks
-        git sparse-checkout set --no-cone iPhoneOS16.5.sdk
-        if [ -d "iPhoneOS16.5.sdk" ]; then
-          mv iPhoneOS16.5.sdk iPhoneOS.sdk
-        fi
+        git sparse-checkout set iPhoneOS16.5.sdk
+        mv iPhoneOS16.5.sdk iPhoneOS.sdk
 
     - name: Compile Tweak to Dylib
       run: |
