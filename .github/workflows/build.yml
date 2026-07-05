@@ -14,24 +14,38 @@ jobs:
     - name: Setup Theos Environment
       run: |
         brew install ldid xz
+        # Set the environment variables for this step execution
         export THEOS=~/theos
-        bash -c "$(curl -fsSL https://githubusercontent.com)"
+        
+        # Install official Theos via their official master installation script
+        bash -c "$(curl -fsSL https://raw.githubusercontent.com/theos/theos/master/bin/install-theos)"
+        
+        # Persist variables properly so subsequent steps can see them
         echo "THEOS=$THEOS" >> $GITHUB_ENV
         echo "$THEOS/bin" >> $GITHUB_PATH
 
     - name: Download and Rename iOS SDK
       run: |
         mkdir -p $THEOS/sdks
-        curl -LO https://github.com
+        
+        # Download a real SDK archive from a trusted community source (theos/sdks)
+        curl -LO https://github.com/theos/sdks/raw/master/iPhoneOS16.5.sdk.tar.xz
+        
+        # Extract and clean up
         tar -xf iPhoneOS16.5.sdk.tar.xz -C $THEOS/sdks
         rm iPhoneOS16.5.sdk.tar.xz
-        mv $THEOS/sdks/iPhoneOS16.5.sdk $THEOS/sdks/iPhoneOS.sdk
+        
+        # Check if it extracted directly or needs renaming
+        if [ -d "$THEOS/sdks/iPhoneOS16.5.sdk" ]; then
+          mv $THEOS/sdks/iPhoneOS16.5.sdk $THEOS/sdks/iPhoneOS.sdk
+        fi
 
     - name: Compile Tweak to Dylib
       run: |
         make
         mkdir -p output_artifacts
-        find .theos/obj/ -name "*.dylib" -exec cp {} output_artifacts/ \;
+        # Using conditional checks to avoid errors if find comes up empty
+        find .theos/obj/ -name "*.dylib" -exec cp {} output_artifacts/ \; || true
 
     - name: Upload Dylib Artifact
       uses: actions/upload-artifact@v4
