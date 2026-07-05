@@ -12,30 +12,25 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Setup Theos Environment
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         brew install ldid xz
-        # Set the environment variables for this step execution
         export THEOS=~/theos
-        
-        # Install official Theos via their official master installation script
         bash -c "$(curl -fsSL https://raw.githubusercontent.com/theos/theos/master/bin/install-theos)"
-        
-        # Persist variables properly so subsequent steps can see them
         echo "THEOS=$THEOS" >> $GITHUB_ENV
         echo "$THEOS/bin" >> $GITHUB_PATH
 
     - name: Download and Rename iOS SDK
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         mkdir -p $THEOS/sdks
-        
-        # -L follows redirects; -o ensures it saves exactly as the specified filename
         curl -fSL -o iPhoneOS16.5.sdk.tar.xz https://github.com/theos/sdks/raw/master/iPhoneOS16.5.sdk.tar.xz
-        
-        # Extract the archive securely
         tar -xf iPhoneOS16.5.sdk.tar.xz -C $THEOS/sdks
         rm iPhoneOS16.5.sdk.tar.xz
-        
-        # Rename to match your project's expected standard naming scheme
         if [ -d "$THEOS/sdks/iPhoneOS16.5.sdk" ]; then
           mv $THEOS/sdks/iPhoneOS16.5.sdk $THEOS/sdks/iPhoneOS.sdk
         fi
@@ -44,7 +39,6 @@ jobs:
       run: |
         make
         mkdir -p output_artifacts
-        # Using conditional checks to avoid errors if find comes up empty
         find .theos/obj/ -name "*.dylib" -exec cp {} output_artifacts/ \; || true
 
     - name: Upload Dylib Artifact
