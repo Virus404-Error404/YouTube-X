@@ -23,7 +23,18 @@ jobs:
 
     - name: Download and Rename iOS SDK
       run: |
-        git clone --depth=1 https://github.com/theos/sdks.git $THEOS/sdks
+        # Remove the pre-cloned sdks if they don't have what we need, then re-clone
+        if [ -d "$THEOS/sdks" ]; then
+          cd $THEOS/sdks
+          if [ ! -d "iPhoneOS16.5.sdk" ]; then
+            # The install script cloned an old/shallow version, re-clone
+            cd ..
+            rm -rf sdks
+            git clone --depth=1 https://github.com/theos/sdks.git sdks
+          fi
+        else
+          git clone --depth=1 https://github.com/theos/sdks.git $THEOS/sdks
+        fi
         cd $THEOS/sdks
         mv iPhoneOS16.5.sdk iPhoneOS.sdk
 
